@@ -14,8 +14,7 @@ from langchain_google_vertexai import VertexAI
 from vertexai.generative_models import (
     GenerativeModel,
     GenerationResponse,
-    Tool,
-    grounding,
+    Tool
 )
 from vertexai.preview.generative_models import grounding as preview_grounding
 from IPython.display import display, Markdown
@@ -25,7 +24,6 @@ MODEL_NAME = "gemini-1.5-pro-001"
 vertexai.init(project=PROJECT_ID, location=REGION)
 llm = VertexAI(model_name=MODEL_NAME, max_output_tokens=1000)
 model = GenerativeModel(MODEL_NAME)
-
 
 def print_grounding_response(response: GenerationResponse):
     """Prints Gemini response with grounding citations."""
@@ -105,7 +103,10 @@ try:
         print ("Question: ")
         question = input()
         print ("Response: ")
-        response = chat.send_message(question, tools=[gh.tool])
+        response = chat.send_message(question, tools=[tool])
+        #print(vars(response))
+        with open('response.json','w') as f:
+            f.write(str(response))
         print_grounding_response(response)
         i -= 1
 except Exception as e:

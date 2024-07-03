@@ -3,7 +3,7 @@ from PIL import Image
 import groundingHelper
 
 
-gh = groundingHelper
+gh = groundingHelper.groundingHelper()
 
 # CSS
 imglogo = Image.open('RA_Logo_Bug-LeftText_white.jpg')
@@ -104,7 +104,7 @@ st.markdown(
 
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
-    st.session_state.messages = [{"role": "assistant", "content": "How may I help you?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Hi, I'm Rokbot. How may I help you?"}]
 
 # Display chat messages
 for message in st.session_state.messages:
@@ -131,15 +131,13 @@ if prompt := st.chat_input(disabled=False):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.write(prompt)
-
+response = ""
 # Generate a new response if last message is not from assistant
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            response = chat.send_message(question, tools=[tool])
-            print_grounding_response(response)
-            gh.chat.send_message(prompt, tools=[tool])
-            response = gh.generate_response(prompt)
-            st.write(response) 
+            ai_response = gh.chat.send_message(prompt, tools=[gh.tool])
+            response = gh.print_grounding_response(ai_response)
+            st.write(response)
     message = {"role": "assistant", "content": response}
     st.session_state.messages.append(message)

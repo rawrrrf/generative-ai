@@ -1,12 +1,12 @@
-from langchain.chains import RetrievalQA
-from langchain.chains import RetrievalQAWithSourcesChain
-from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
-from langchain.prompts import PromptTemplate
+#from langchain.chains import RetrievalQA
+#from langchain.chains import RetrievalQAWithSourcesChain
+#from langchain.chains import ConversationalRetrievalChain
+#from langchain.memory import ConversationBufferMemory
+#from langchain.prompts import PromptTemplate
 
-from langchain_google_vertexai import VertexAI
-from langchain_google_community import VertexAISearchRetriever
-from langchain_google_community import VertexAIMultiTurnSearchRetriever
+#from langchain_google_vertexai import VertexAI
+#from langchain_google_community import VertexAISearchRetriever
+#from langchain_google_community import VertexAIMultiTurnSearchRetriever
 import IPython
 import vertexai
 import langchain
@@ -14,8 +14,7 @@ from langchain_google_vertexai import VertexAI
 from vertexai.generative_models import (
     GenerativeModel,
     GenerationResponse,
-    Tool,
-    grounding,
+    Tool
 )
 from vertexai.preview.generative_models import grounding as preview_grounding
 from IPython.display import display, Markdown
@@ -33,10 +32,10 @@ class groundingHelper:
         vertexai.init(project=PROJECT_ID, location=REGION)
         self.llm = VertexAI(model_name=MODEL_NAME, max_output_tokens=1000)
         self.model = GenerativeModel(MODEL_NAME)
-        self.chat = model.start_chat(response_validation=False)
+        self.chat = self.model.start_chat(response_validation=False)
         self.datastore = f"projects/{DATA_STORE_PROJECT_ID}/locations/{DATA_STORE_REGION}/collections/default_collection/dataStores/{DATA_STORE_ID}"
         self.tool = Tool.from_retrieval(
-            preview_grounding.Retrieval(preview_grounding.VertexAISearch(datastore=datastore))
+            preview_grounding.Retrieval(preview_grounding.VertexAISearch(datastore=self.datastore))
         )
 
     def print_grounding_response(self, response: GenerationResponse):
@@ -73,7 +72,7 @@ class groundingHelper:
         if prev_index < len(text_bytes):
             markdown_text += str(text_bytes[prev_index:], encoding=ENCODING)
 
-        markdown_text += "\n## Grounding Sources:"
+        markdown_text += "\n Grounding Sources:"
 
         if grounding_metadata.web_search_queries:
             markdown_text += (
