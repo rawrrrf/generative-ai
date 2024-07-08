@@ -26,10 +26,9 @@ class groundingHelper:
         PROJECT_ID = 'ai-sandbox-company-18'
         REGION = 'us-central1'
         MODEL_NAME = "gemini-1.5-pro-001"
-        DATA_STORE_PROJECT_ID = 'ai-sandbox-company-18'  # @param {type:"string"}
-        DATA_STORE_REGION = "global"  # @param {type:"string"}
-        # Replace this with your data store ID from Vertex AI Search
-        DATA_STORE_ID = "ra-selection-guide_1716893896897"  # @param {type:"string"}
+        DATA_STORE_PROJECT_ID = 'ai-sandbox-company-18' 
+        DATA_STORE_REGION = "global"  
+        DATA_STORE_ID = "ra-selection-guide_1716893896897" 
         vertexai.init(project=PROJECT_ID, location=REGION)
         self.llm = VertexAI(model_name=MODEL_NAME, max_output_tokens=1000)
         self.model = GenerativeModel(MODEL_NAME)
@@ -37,7 +36,7 @@ class groundingHelper:
         self.tool = Tool.from_retrieval(
             preview_grounding.Retrieval(preview_grounding.VertexAISearch(datastore=self.datastore))
         )
-        self.chat = self.model.start_chat(response_validation=False, history=self.history)
+        self.chat = self.model.start_chat(response_validation=True)
 
     def generate_response(self, prompt):
         ai_response = self.chat.send_message(prompt, tools=[self.tool])
@@ -76,7 +75,8 @@ class groundingHelper:
                 footnote += 1
 
             text_segment = text_bytes[prev_index:end_index].decode(ENCODING)
-            markdown_text += f"{text_segment} [[{sources[uri]['footnote']}]]({uri})"
+            #markdown_text += f"{text_segment} [[{sources[uri]['footnote']}]]({uri})"
+            markdown_text += f"{text_segment}"
             prev_index = end_index
 
         if prev_index < len(text_bytes):
