@@ -1,9 +1,7 @@
 import streamlit as st
 from PIL import Image
 import groundingHelper
-
-
-gh = groundingHelper.groundingHelper()
+from vertexai.preview.language_models import ChatModel, ChatSession
 
 # CSS
 imglogo = Image.open('RA_Logo_Bug-LeftText_white.jpg')
@@ -12,7 +10,7 @@ title_logo = Image.open('pagelogo.png')
 
 # CSS App title
 st.set_page_config(
-    page_title="Rok Chat",
+    page_title="Rok bot",
     page_icon=title_logo,
     layout="wide"
 )
@@ -31,10 +29,8 @@ st.markdown(
         z-index:998;
     }   
     [data-testid="stSidebar"] img {
-        width: 80%;
+        width: 200%;
         display: block;
-        margin-left: auto;
-        margin-right: auto;
         margin-bottom: 60px; /* Add margin bottom to increase spacing */        
     }
     [data-testid="stImage"] button {
@@ -62,9 +58,13 @@ st.markdown(
     }
     .stAlert p {
         color: black; /* Black color */
+        margin-left: 5px;
     }
     [data-testid="stBottomBlockContainer"] {
-        margin-bottom: 5px;
+        margin-bottom: 10px;
+    }
+    [data-testid="chatAvatarIcon-assistant"]{
+        color: #F9C20A !imprtant;
     }
     .footer {
         position: fixed;
@@ -80,6 +80,7 @@ st.markdown(
     }
     .footer .dimmed-text {
         color: #BBBBBB; /* Dimmer white color */
+        padding-left: 15px;
     }
     </style>
     """,
@@ -88,23 +89,24 @@ st.markdown(
 # CSS
 
 # CSS
-# with st.sidebar:
-#     st.image(imglogo)
+with st.sidebar:
+    st.image(imglogo)
     
     
-#     st.markdown('<h1 class="off-white-text">ROKbot</h1>', unsafe_allow_html=True)
-#     hf_email = st.text_input('Company Email:', type='password', key='email')
-#     hf_pass = st.text_input('Password:', type='password', key='password')
+    st.markdown('<h1 class="off-white-text">ROKbot</h1>', unsafe_allow_html=True)
+    hf_email = st.text_input('Company Email:', type='password', key='email')
+    hf_pass = st.text_input('Password:', type='password', key='password')
     
-#     if not (hf_email and hf_pass):
-#         st.warning('  Please enter your credentials!', icon='⚠️')
-#     else:
-#         st.success('Great system starts here!')
+    if not (hf_email and hf_pass):
+        st.warning('  Please enter your credentials!', icon='⚠️')
+    else:
+        st.success('Great system starts here!')
 # CSS
-
+if "chat_session" not in st.session_state.keys():
+    st.session_state.chat_session = groundingHelper.groundingHelper()
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
-    st.session_state.messages = [{"role": "assistant", "content": "Hi, I'm Rokbot. How may I help you?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Hi, I'm ROKbot. What do you want to do today?"}]
 
 # Display chat messages
 for message in st.session_state.messages:
@@ -115,7 +117,7 @@ for message in st.session_state.messages:
 st.markdown(
     """
     <div class="footer">
-        Rockwell Automation © 2024   <span class="dimmed-text">   Expanding human possibility.</span>
+        Rockwell Automation © 2024 <span class="dimmed-text"> expanding human possibility™</span>
     </div>
     """,
     unsafe_allow_html=True
@@ -136,8 +138,7 @@ response = ""
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            ai_response = gh.chat.send_message(prompt, tools=[gh.tool])
-            response = gh.print_grounding_response(ai_response)
+            response = st.session_state.chat_session.generate_response(prompt)
             st.write(response)
     message = {"role": "assistant", "content": response}
     st.session_state.messages.append(message)

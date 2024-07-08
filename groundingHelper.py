@@ -22,6 +22,7 @@ from IPython.display import display, Markdown
 
 class groundingHelper:
     def __init__(self):
+        self.history = []
         PROJECT_ID = 'ai-sandbox-company-18'
         REGION = 'us-central1'
         MODEL_NAME = "gemini-1.5-pro-001"
@@ -32,15 +33,24 @@ class groundingHelper:
         vertexai.init(project=PROJECT_ID, location=REGION)
         self.llm = VertexAI(model_name=MODEL_NAME, max_output_tokens=1000)
         self.model = GenerativeModel(MODEL_NAME)
-        self.chat = self.model.start_chat(response_validation=False)
         self.datastore = f"projects/{DATA_STORE_PROJECT_ID}/locations/{DATA_STORE_REGION}/collections/default_collection/dataStores/{DATA_STORE_ID}"
         self.tool = Tool.from_retrieval(
             preview_grounding.Retrieval(preview_grounding.VertexAISearch(datastore=self.datastore))
         )
+        self.chat = self.model.start_chat(response_validation=False, history=self.history)
+
+    def generate_response(self, prompt):
+        ai_response = self.chat.send_message(prompt, tools=[self.tool])
+        self.history.append(ai_response)
+        return self.print_grounding_response(ai_response)
 
     def print_grounding_response(self, response: GenerationResponse):
         """Prints Gemini response with grounding citations."""
         grounding_metadata = response.candidates[0].grounding_metadata
+        #with open('response_history.txt','a+') as f:
+        #    f.write(str(self.history))
+        #
+        #self.history.append(response.candidates[0].content)
 
         # Citation indices are in byte units
         ENCODING = "utf-8"

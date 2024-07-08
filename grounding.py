@@ -24,6 +24,7 @@ MODEL_NAME = "gemini-1.5-pro-001"
 vertexai.init(project=PROJECT_ID, location=REGION)
 llm = VertexAI(model_name=MODEL_NAME, max_output_tokens=1000)
 model = GenerativeModel(MODEL_NAME)
+chat = model.start_chat(response_validation=False)
 
 def print_grounding_response(response: GenerationResponse):
     """Prints Gemini response with grounding citations."""
@@ -79,35 +80,25 @@ def print_grounding_response(response: GenerationResponse):
 DATA_STORE_PROJECT_ID = 'ai-sandbox-company-18'  # @param {type:"string"}
 DATA_STORE_REGION = "global"  # @param {type:"string"}
 # Replace this with your data store ID from Vertex AI Search
-DATA_STORE_ID = "ra-selection-guide_1716893896897"  # @param {type:"string"}
+DATA_STORE_ID = "ra-selection-guide_1716893896897"
+#"ra-literature_1720104133512"#"ra-brochures_1716894066740"#"ra-selection-guide_1716893896897"  # "ra-literature-search_1716894818322"
 
 datastore = f"projects/{DATA_STORE_PROJECT_ID}/locations/{DATA_STORE_REGION}/collections/default_collection/dataStores/{DATA_STORE_ID}"
 tool = Tool.from_retrieval(
     preview_grounding.Retrieval(preview_grounding.VertexAISearch(datastore=datastore))
 )
-chat = model.start_chat(response_validation=False)
-datastore = f"projects/{DATA_STORE_PROJECT_ID}/locations/{DATA_STORE_REGION}/collections/default_collection/dataStores/{DATA_STORE_ID}"
-tool = Tool.from_retrieval(
-    preview_grounding.Retrieval(preview_grounding.VertexAISearch(datastore=datastore))
-)
-
-PROMPT = "List all the names of the products in the datastore"
-PROMPT_FOLLOWUP = "From the selection in the datastore recommend products to build a conveyor belt"
-
-#response = chat.send_message("list the title of the files in the current datastore", tools=[tool])
-#print_grounding_response(response)
 
 i = 10
-try:
-    while i > 0:
-        print ("Question: ")
-        question = input()
-        print ("Response: ")
-        response = chat.send_message(question, tools=[tool])
-        #print(vars(response))
-        with open('response.json','w') as f:
-            f.write(str(response))
-        print_grounding_response(response)
-        i -= 1
-except Exception as e:
-    print(e)
+# try:
+while i > 0:
+    print ("Question: ")
+    question = input()
+    print ("Response: ")
+    response = chat.send_message(question, tools=[tool])
+    #print(vars(response))
+    with open('response.json','w') as f:
+        f.write(str(response))
+    print_grounding_response(response)
+    i -= 1
+# except Exception as e:
+#     print(e)
